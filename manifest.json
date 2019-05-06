@@ -1,5 +1,6 @@
 {
-  "required_api_version": "^2.0.0",
+  "api_version": "1",
+  "manifest_version": "1",
   "name": "Unicode extension",
   "description": "Extension Description",
   "developer_name": "John Doe",
@@ -9,11 +10,11 @@
   },
   "preferences": [
     {
-      "id": "demo_kw",
+      "id": "unicode",
       "type": "keyword",
-      "name": "Demo",
-      "description": "Demo extension",
-      "default_value": "dm"
+      "name": "Unicode",
+      "description": "Search for Unicode characters and copy them to the clipboard",
+      "default_value": "uni"
     }
   ]
 }
