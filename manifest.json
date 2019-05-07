@@ -6,7 +6,7 @@
   "developer_name": "John Doe",
   "icon": "images/bookmark.svg",
   "options": {
-    "query_debounce": 0.1
+    "query_debounce": 0.5
   },
   "preferences": [
     {

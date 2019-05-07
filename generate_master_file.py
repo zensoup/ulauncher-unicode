@@ -27,6 +27,7 @@ with open('unicode_list.txt', 'w') as target:
                 num = int(code, 16)
             except ValueError:
                 print('could not convert ' + code)
+                continue
             index = locate_block(num)
             if index is not None:
                 target.write(name + '\t' + code + '\t' + blocks[index] + '\n')

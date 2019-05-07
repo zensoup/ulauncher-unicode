@@ -1,7 +1,9 @@
 import sys
-sys.path.append('/home/zen/.local/lib/python2.7/site-packages/')
+
+sys.path.append("/home/zen/.local/lib/python2.7/site-packages/")
 
 import os
+import codecs
 from fuzzywuzzy import process
 
 from ulauncher.api.client.Extension import Extension
@@ -13,17 +15,18 @@ from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAct
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 
 
-class DemoExtension(Extension):
+FILE_PATH = os.path.dirname(sys.argv[0])
 
+
+class UnicodeCharExtension(Extension):
     def __init__(self):
-        super(DemoExtension, self).__init__()
+        super(UnicodeCharExtension, self).__init__()
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
 
 
 class KeywordQueryEventListener(EventListener):
-
     def __init__(self):
-        f = open(os.path.dirname(sys.argv[0]) + '/unicode_list.txt', 'r')
+        f = open(os.path.dirname(sys.argv[0]) + "/unicode_list.txt", "r")
         data = f.readlines()
         self.data = {}
         # self.names = []
@@ -31,9 +34,9 @@ class KeywordQueryEventListener(EventListener):
         # self.blocks = []
         for item in data:
             item = item.strip()
-            name, code, block = item.split('\t')
-            self.data[name + ' ' + block] = (name, block, code)
-            self.items.append(name + ' ' + block)
+            name, code, block = item.split("\t")
+            self.data[name + " " + block] = (name, block, code)
+            self.items.append(name + " " + block)
             # self.names.append(name)
             # self.blocks.append(block)
 
@@ -42,14 +45,46 @@ class KeywordQueryEventListener(EventListener):
         arg = event.get_argument()
         if arg:
             matches = process.extract(arg, self.items, limit=15)
+
             for m in matches:
                 name, block, code = self.data[m[0]]
-                items.append(ExtensionResultItem(icon='images/bookmark.svg',
-                                                 name=name + ' - ' + unichr(int(code, 16)),
-                                                 description=block,
-                                                 on_enter=CopyToClipboardAction(unichr(int(code, 16)))))
+                image_path = self.create_icon_image(code)
+                items.append(
+                    ExtensionResultItem(
+                        icon=image_path,
+                        name=name + " - " + unichr(int(code, 16)),
+                        description=block,
+                        on_enter=CopyToClipboardAction(unichr(int(code, 16))),
+                    )
+                )
 
         return RenderResultListAction(items)
 
-if __name__ == '__main__':
-    DemoExtension().run()
+    def create_icon_image(self, code):
+        path = sys.argv[0] + "images/cache/icon_%s.svg" % code
+        if os.path.isfile(path):
+            return path
+        return create_character_icon(code)
+
+
+def load_icon_template():
+    with open(os.path.join(FILE_PATH, "images/unicode.svg"), "r") as i:
+        return i.read()
+
+
+def is_icon_cached(code):
+    return os.path.isfile(os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code))
+
+
+def create_character_icon(code, font='sans-serif'):
+    template = load_icon_template()
+    icon = template.replace("{symbol}", unichr(int(code, 16))).replace('{font}', font)
+    with codecs.open(
+        os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code), "w", "utf-8"
+    ) as target:
+        target.write(icon)
+    return os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code)
+
+
+if __name__ == "__main__":
+    UnicodeCharExtension().run()

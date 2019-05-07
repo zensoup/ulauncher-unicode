@@ -531,7 +531,6 @@ bernoulli function	212C	Letterlike Symbols
 BET SYMBOL	2136	Letterlike Symbols
 BETA SYMBOL, GREEK	03D0	Greek and Coptic
 beta, curled	03D0	Greek and Coptic
-Betty	BOOP	Greek and Coptic
 BETWEEN	226C	Mathematical Operators
 Beverage Symbols	1F375	Miscellaneous Symbols and Pictographs
 BEVERAGE, HOT	2615	Miscellaneous Symbols
@@ -5449,7 +5448,6 @@ Thai Digits	0E50	Thai
 Thai Marks and Signs	0E48	Thai
 Thai Vowels	0E30	Thai
 THANTHAKHAT, THAI CHARACTER	0E4C	Thai
-the	DOOD	Thai
 theater masks	1F3AD	Miscellaneous Symbols and Pictographs
 THERE DOES NOT EXIST	2204	Mathematical Operators
 THERE EXISTS	2203	Mathematical Operators
