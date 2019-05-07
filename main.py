@@ -4,7 +4,7 @@ sys.path.append("/home/zen/.local/lib/python2.7/site-packages/")
 
 import os
 import codecs
-from fuzzywuzzy import process
+from ulauncher.search.SortedList import SortedList
 
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
@@ -17,6 +17,13 @@ from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 
 FILE_PATH = os.path.dirname(sys.argv[0])
 
+class SearchableItem:
+    def __init__(self, name, item):
+        self._name = name
+        self._item = item
+
+    def get_search_name(self):
+        return self._name
 
 class UnicodeCharExtension(Extension):
     def __init__(self):
@@ -26,17 +33,20 @@ class UnicodeCharExtension(Extension):
 
 class KeywordQueryEventListener(EventListener):
     def __init__(self):
+        print('======'*40)
         f = open(os.path.dirname(sys.argv[0]) + "/unicode_list.txt", "r")
         data = f.readlines()
         self.data = {}
         # self.names = []
         self.items = []
+        self.items_ = []
         # self.blocks = []
         for item in data:
             item = item.strip()
             name, code, block = item.split("\t")
             self.data[name + " " + block] = (name, block, code)
             self.items.append(name + " " + block)
+            self.items_.append(SearchableItem(name , (name, block, code)))
             # self.names.append(name)
             # self.blocks.append(block)
 
@@ -44,10 +54,11 @@ class KeywordQueryEventListener(EventListener):
         items = []
         arg = event.get_argument()
         if arg:
-            matches = process.extract(arg, self.items, limit=15)
 
-            for m in matches:
-                name, block, code = self.data[m[0]]
+            m_ = SortedList(arg, min_score=60, limit=10)
+            m_.extend(self.items_)
+            for m in m_:
+                name, block, code = m._item
                 image_path = self.create_icon_image(code)
                 items.append(
                     ExtensionResultItem(
