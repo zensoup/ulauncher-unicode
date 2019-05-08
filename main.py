@@ -3,6 +3,8 @@ import sys
 sys.path.append("/home/zen/.local/lib/python2.7/site-packages/")
 
 import os
+from os.path import join
+import time
 import codecs
 from ulauncher.search.SortedList import SortedList
 
@@ -14,8 +16,21 @@ from ulauncher.api.shared.action.RenderResultListAction import RenderResultListA
 from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 
+if sys.version_info[0] >= 3:
+    unichr = chr
 
 FILE_PATH = os.path.dirname(sys.argv[0])
+
+class UnicodeChar:
+    def __init__(self, name, block, code):
+        self.name = name
+        self.block = block
+        self.code = code
+        self.character = unichr(int(code, 16))
+
+    def get_search_name(self):
+        return self.name
+
 
 class SearchableItem:
     def __init__(self, name, item):
@@ -33,45 +48,37 @@ class UnicodeCharExtension(Extension):
 
 class KeywordQueryEventListener(EventListener):
     def __init__(self):
-        print('======'*40)
-        f = open(os.path.dirname(sys.argv[0]) + "/unicode_list.txt", "r")
-        data = f.readlines()
-        self.data = {}
-        # self.names = []
-        self.items = []
-        self.items_ = []
-        # self.blocks = []
-        for item in data:
-            item = item.strip()
-            name, code, block = item.split("\t")
-            self.data[name + " " + block] = (name, block, code)
-            self.items.append(name + " " + block)
-            self.items_.append(SearchableItem(name , (name, block, code)))
-            # self.names.append(name)
-            # self.blocks.append(block)
+        self._load_character_table()
+
+    def _load_character_table(self):
+        self.character_list = []
+        with open(join(FILE_PATH, "unicode_list.txt"), "r") as f:
+            for line in f.readlines():
+                name, code, block = line.strip().split('\t')
+                character = UnicodeChar(name, block, code)
+                self.character_list.append(character)
+
 
     def on_event(self, event, extension):
         items = []
         arg = event.get_argument()
         if arg:
-
             m_ = SortedList(arg, min_score=60, limit=10)
-            m_.extend(self.items_)
-            for m in m_:
-                name, block, code = m._item
-                image_path = self.create_icon_image(code)
+            m_.extend(self.character_list)
+            for char in m_:
+                image_path = self._get_character_icon(char.code)
                 items.append(
                     ExtensionResultItem(
                         icon=image_path,
-                        name=name + " - " + unichr(int(code, 16)),
-                        description=block,
-                        on_enter=CopyToClipboardAction(unichr(int(code, 16))),
+                        name=char.name + " - " + char.character,
+                        description=char.block + " - " + char.code,
+                        on_enter=CopyToClipboardAction(char.character),
                     )
                 )
 
         return RenderResultListAction(items)
 
-    def create_icon_image(self, code):
+    def _get_character_icon(self, code):
         path = sys.argv[0] + "images/cache/icon_%s.svg" % code
         if os.path.isfile(path):
             return path
@@ -79,7 +86,7 @@ class KeywordQueryEventListener(EventListener):
 
 
 def load_icon_template():
-    with open(os.path.join(FILE_PATH, "images/unicode.svg"), "r") as i:
+    with open(os.path.join(FILE_PATH, "images/unicode2.svg"), "r") as i:
         return i.read()
 
 
