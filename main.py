@@ -21,6 +21,12 @@ if sys.version_info[0] >= 3:
 
 FILE_PATH = os.path.dirname(sys.argv[0])
 
+ICON_TEMPLATE = '''
+<svg  width="100" height="100">
+    <text x="50" y="50" dy=".35em" text-anchor="middle" font-family="{font}" font-size="80">{symbol}</text>
+</svg>
+'''
+
 class UnicodeChar:
     def __init__(self, name, block, code):
         self.name = name
@@ -85,17 +91,12 @@ class KeywordQueryEventListener(EventListener):
         return create_character_icon(code)
 
 
-def load_icon_template():
-    with open(os.path.join(FILE_PATH, "images/unicode2.svg"), "r") as i:
-        return i.read()
-
-
 def is_icon_cached(code):
     return os.path.isfile(os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code))
 
 
 def create_character_icon(code, font='sans-serif'):
-    template = load_icon_template()
+    template = ICON_TEMPLATE
     icon = template.replace("{symbol}", unichr(int(code, 16))).replace('{font}', font)
     with codecs.open(
         os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code), "w", "utf-8"
