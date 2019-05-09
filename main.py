@@ -32,15 +32,16 @@ ICON_TEMPLATE = """
 class UnicodeChar:
     """ Container class for unicode characters """
 
-    def __init__(self, name, block, code):
-        self.name = name
+    def __init__(self, name, comment, block, code):
+        self.name = name if name != '<control>' else comment
+        self.comment = comment
         self.block = block
         self.code = code
         self.character = unichr(int(code, 16))
 
     def get_search_name(self):
         """ Called by `ulauncher.search.SortedList` to get the string that should be used in searches """
-        return self.name
+        return ' '.join([self.code, self.name, self.comment])
 
 
 class UnicodeCharExtension(Extension):
@@ -54,8 +55,8 @@ class UnicodeCharExtension(Extension):
         self.character_list = []
         with open(join(FILE_PATH, "unicode_list.txt"), "r") as f:
             for line in f.readlines():
-                name, code, block = line.strip().split("\t")
-                character = UnicodeChar(name, block, code)
+                name, comment, code, block = line.strip().split("\t")
+                character = UnicodeChar(name, comment, block, code)
                 self.character_list.append(character)
 
 
@@ -64,7 +65,7 @@ class KeywordQueryEventListener(EventListener):
         items = []
         arg = event.get_argument()
         if arg:
-            result_list = SortedList(arg, min_score=60, limit=10)
+            result_list = SortedList(arg, min_score=40, limit=10)
             result_list.extend(extension.character_list)
             for char in result_list:
                 image_path = self._get_character_icon(char)
