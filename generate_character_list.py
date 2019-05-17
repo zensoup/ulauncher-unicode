@@ -23,11 +23,11 @@ def get_blocks():
 def get_data():
     """ Download the info file for Unicode blocks.
     """
-    logging.info("Downloading block data...")
     req = request.urlopen(
         "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt"
     )
     content = req.read().decode()
+    logging.info("Downloading character data...")
     logging.info("Done")
     return content
 
