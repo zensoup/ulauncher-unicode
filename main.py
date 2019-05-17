@@ -1,13 +1,9 @@
-import sys
-
-sys.path.append("/home/zen/.local/lib/python2.7/site-packages/")
-
 import os
-from os.path import join
-import time
+import sys
 import codecs
-from ulauncher.search.SortedList import SortedList
+from os.path import join
 
+from ulauncher.search.SortedList import SortedList
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
 from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
@@ -41,7 +37,7 @@ class UnicodeChar:
 
     def get_search_name(self):
         """ Called by `ulauncher.search.SortedList` to get the string that should be used in searches """
-        return ' '.join([self.code, self.name, self.comment])
+        return ' '.join([self.character, self.code, self.name, self.comment])
 
 
 class UnicodeCharExtension(Extension):
@@ -68,7 +64,7 @@ class KeywordQueryEventListener(EventListener):
             result_list = SortedList(arg, min_score=40, limit=10)
             result_list.extend(extension.character_list)
             for char in result_list:
-                image_path = self._get_character_icon(char)
+                image_path = get_character_icon(char)
                 items.append(
                     ExtensionResultItem(
                         icon=image_path,
@@ -77,18 +73,16 @@ class KeywordQueryEventListener(EventListener):
                         on_enter=CopyToClipboardAction(char.character),
                     )
                 )
-
         return RenderResultListAction(items)
 
-    def _get_character_icon(self, char):
-        path = sys.argv[0] + "images/cache/icon_%s.svg" % char.code
-        if os.path.isfile(path):
-            return path
-        return create_character_icon(char)
-
-
-def is_icon_cached(code):
-    return os.path.isfile(os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % code))
+def get_character_icon(char):
+    """ Check if there is an existing icon for this character and return its path
+    or create a new one and return its path.
+    """
+    path = FILE_PATH + "images/cache/icon_%s.svg" % char.code
+    if os.path.isfile(path):
+        return path
+    return create_character_icon(char)
 
 
 def create_character_icon(char, font="sans-serif"):
