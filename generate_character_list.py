@@ -23,11 +23,11 @@ def get_blocks():
 def get_data():
     """ Download the info file for Unicode blocks.
     """
+    logging.info("Downloading character data...")
     req = request.urlopen(
         "https://www.unicode.org/Public/UCD/latest/ucd/UnicodeData.txt"
     )
     content = req.read().decode()
-    logging.info("Downloading character data...")
     logging.info("Done")
     return content
 
@@ -53,26 +53,34 @@ def load_blocks():
         indices.append((int(start, 16), int(stop, 16)))
         blocks.append(name.strip())
 
-    def locate_block(code):
-        for index, [start, stop] in enumerate(indices):
-            if code > stop:
-                continue
-            else:
-                if code >= start:
-                    return blocks[index]
+    def locate_block(code, left=0, right=len(indices)):
+        """
+        Binary search on an ordered list of intervals.
+        """
+        half = left + (right - left) // 2
+        [start, end] = indices[half]
+        if start > code:
+            return locate_block(code, left, right=half)
+        elif end < code:
+            return locate_block(code, half, right=right)
+        else:
+            return blocks[half]
 
     return locate_block
 
 
 def main():
+    """ Read the character and block data and unite them to a text file containing the following fields:
+    `<character name>   <character comment> <code>  <block name>`
+    seperated by tab characters.
+    """
     get_block = load_blocks()
     characters = clean(get_data())
 
     logging.info("Parsing character data...")
-
     output = []
     for line in characters.split("\n"):
-        # Parse the needed data
+        # Parse the needed data from the character's line
         attributes = line.strip().split(";")
         code = attributes[0]
         name = attributes[1]
