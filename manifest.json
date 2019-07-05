@@ -2,8 +2,8 @@
   "api_version": "1",
   "manifest_version": "1",
   "name": "Unicode extension",
-  "description": "Extension Description",
-  "developer_name": "John Doe",
+  "description": "Search for Unicode characters and copy them to the clipboard.",
+  "developer_name": "Vangelis Kostalas",
   "icon": "images/unicode.png",
   "options": {
     "query_debounce": 0.5
