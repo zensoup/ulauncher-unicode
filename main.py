@@ -26,7 +26,8 @@ ICON_TEMPLATE = """
 
 
 class UnicodeChar:
-    """ Container class for unicode characters """
+    """ Container class for unicode characters
+    """
 
     def __init__(self, name, comment, block, code):
         self.name = name if name != '<control>' else comment
@@ -36,7 +37,9 @@ class UnicodeChar:
         self.character = unichr(int(code, 16))
 
     def get_search_name(self):
-        """ Called by `ulauncher.search.SortedList` to get the string that should be used in searches """
+        """ Called by `ulauncher.search.SortedList` to get the string
+        that should be used in searches
+        """
         return ' '.join([self.character, self.code, self.name, self.comment])
 
 
@@ -47,7 +50,8 @@ class UnicodeCharExtension(Extension):
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
 
     def _load_character_table(self):
-        """ Read the data file and load to memory """
+        """ Read the data file and load to memory
+        """
         self.character_list = []
         with open(join(FILE_PATH, "unicode_list.txt"), "r") as f:
             for line in f.readlines():
