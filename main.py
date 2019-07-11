@@ -46,6 +46,7 @@ class UnicodeChar:
 class UnicodeCharExtension(Extension):
     def __init__(self):
         super(UnicodeCharExtension, self).__init__()
+        check_cache_dir()
         self._load_character_table()
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
 
@@ -102,6 +103,14 @@ def create_character_icon(char, font="sans-serif"):
     ) as target:
         target.write(icon)
     return os.path.join(FILE_PATH, "images/cache/icon_%s.svg" % char.code)
+
+
+def check_cache_dir(path="images/cache"):
+    """ Check if the cache directory exists and if not create it.
+    """
+    path = os.path.join(FILE_PATH, path)
+    if not os.path.isdir(path):
+        os.mkdir(path)
 
 
 if __name__ == "__main__":
